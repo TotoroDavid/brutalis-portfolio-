@@ -1707,3 +1707,6 @@ document.addEventListener("DOMContentLoaded", () => {
     // Start all animations immediately to ensure visibility
     initAllAnimations();
 });
+
+
+console.log("Animations initialized");
