@@ -1,7 +1,6 @@
+console.log("hello world"); // Added test log
 
 document.addEventListener("DOMContentLoaded", () => {
-
-    console.log("este es el segundo consople log que hago para hacer un test "); // Added test log
     console.log("Animation script loaded"); // Debug log
 
     // IMPORTANT: Force elements to be visible immediately
