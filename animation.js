@@ -1,7 +1,5 @@
-console.log("hey there this is a new hello wordl"); // Added test log
-
 document.addEventListener("DOMContentLoaded", () => {
-    console.log("Animation script loaded"); // Debug log
+    console.log("Animation script loaded ???????? really"); // Debug log
 
     // IMPORTANT: Force elements to be visible immediately
     document.querySelectorAll('.navbar_component, .header_content, .header_lightbox-image, .header104_heading-wrapper, h1, .header104_heading-wrapper h1 span').forEach(el => {
