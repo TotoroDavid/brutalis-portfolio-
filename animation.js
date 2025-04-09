@@ -1,7 +1,5 @@
-console.log("Animations initialized");// Wait for DOM to load
-
-
 document.addEventListener("DOMContentLoaded", () => {
+    console.log("hello world"); // Added test log
     console.log("Animation script loaded"); // Debug log
 
     // IMPORTANT: Force elements to be visible immediately
