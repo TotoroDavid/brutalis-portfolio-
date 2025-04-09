@@ -1,4 +1,4 @@
-console.log("hello world"); // Added test log
+console.log("hey there this is a new hello wordl"); // Added test log
 
 document.addEventListener("DOMContentLoaded", () => {
     console.log("Animation script loaded"); // Debug log
