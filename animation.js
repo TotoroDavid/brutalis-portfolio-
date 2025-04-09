@@ -14,1671 +14,713 @@ document.addEventListener("DOMContentLoaded", () => {
     // Initialize GSAP plugins
     gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
-    // Create custom cursor
-    const cursorDot = document.createElement("div");
-    const cursorOutline = document.createElement("div");
-
-    // Add cursor elements to the DOM
-    cursorDot.className = "cursor-dot";
-    cursorOutline.className = "cursor-outline";
-    document.body.appendChild(cursorDot);
-    document.body.appendChild(cursorOutline);
-
-    // Add CSS for cursor with enhanced hover effects
-    const style = document.createElement("style");
-    style.textContent = `
-    body {
-      cursor: none;
-    }
-    
-    .cursor-dot {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 6px; /* Smaller cursor dot */
-      height: 6px;
-      background-color: var(--swatch--brand, #c6fb50);
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 9999;
-      transform: translate(-50%, -50%);
-      box-shadow: 0 0 10px rgba(0,0,0,0.5);
-      transition: width 0.3s, height 0.3s, background-color 0.3s;
-    }
-    
-    .cursor-outline {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 30px; /* Smaller cursor outline */
-      height: 30px;
-      border: 2px solid var(--swatch--brand, #c6fb50);
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 9998;
-      transform: translate(-50%, -50%);
-      box-shadow: 0 0 15px rgba(0,0,0,0.3);
-      transition: width 0.3s, height 0.3s, border-color 0.3s, opacity 0.3s;
-    }
-    
-    /* Cursor "plus" effect lines that appear on hover */
-    .cursor-outline::before,
-    .cursor-outline::after {
-      content: "";
-      position: absolute;
-      background-color: transparent;
-      transition: all 0.3s ease;
-      opacity: 0;
-    }
-
-    .cursor-outline::before {
-      top: 50%;
-      left: 5px;
-      right: 5px;
-      height: 2px;
-      transform: translateY(-50%) scaleX(0);
-    }
-
-    .cursor-outline::after {
-      left: 50%;
-      top: 5px;
-      bottom: 5px;
-      width: 2px;
-      transform: translateX(-50%) scaleY(0);
-    }
-
-    /* Show plus effect when hovering */
-    .hover-active .cursor-outline::before,
-    .hover-active .cursor-outline::after {
-      opacity: 1;
-      background-color: currentColor;
-    }
-
-    .hover-active .cursor-outline::before {
-      transform: translateY(-50%) scaleX(1);
-    }
-
-    .hover-active .cursor-outline::after {
-      transform: translateX(-50%) scaleY(1);
-    }
-
-    .hover-target {
-      cursor: none;
-    }
-
-    .u-theme-dark .cursor-dot {
-      background-color: var(--swatch--brand, #c6fb50);
-      box-shadow: 0 0 10px rgba(255,255,255,0.5);
-    }
-    
-    .u-theme-dark .cursor-outline {
-      border-color: var(--swatch--brand, #c6fb50);
-      box-shadow: 0 0 15px rgba(255,255,255,0.3);
-    }
-    
-    .u-theme-light .cursor-dot {
-      background-color: var(--swatch--dark, #353233);
-    }
-    
-    .u-theme-light .cursor-outline {
-      border-color: var(--swatch--dark, #353233);
-    }
-
-    /* Button hover effect */
-    .btn_main_wrap:hover .cursor-dot,
-    button:hover .cursor-dot {
-      background-color: white !important;
-      width: 10px !important;
-      height: 10px !important;
-    }
-
-    .btn_main_wrap:hover .cursor-outline,
-    button:hover .cursor-outline {
-      border-color: white !important;
-      width: 50px !important;
-      height: 50px !important;
-      opacity: 0.8 !important;
-    }
-
-    /* Animation specific styles */
-    .section-transition {
-      transition: background-color 0.7s ease-in-out, color 0.7s ease-in-out;
-    }
-
-    .header_lightbox-image {
-      overflow: hidden;
-      transform-origin: center center;
-      will-change: transform, opacity;
-      z-index: 2;
-      visibility: visible !important;
-      opacity: 1 !important;
-    }
-
-    .section-reveal {
-      opacity: 0;
-      transform: translateY(30px);
-    }
-
-    .g_visual_video {
-      filter: none !important;
-      will-change: transform, opacity;
-    }
-    
-    .reveal-text {
-      opacity: 0;
-      transform: translateY(20px);
-      transition: opacity 0.8s ease, transform 0.8s ease;
-    }
-    
-    .reveal-text.active {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    
-    .char {
-      display: inline-block;
-      opacity: 0;
-      transform: translateY(30px);
-      transition: transform 0.5s, opacity 0.5s;
-    }
-
-    /* Critical elements visibility fixes */
-    .navbar_component,
-    .header_content, 
-    .header_lightbox-image,
-    .header104_heading-wrapper,
-    .header104_heading-wrapper h1,
-    .header104_heading-wrapper h1 span {
-        visibility: visible !important;
-        opacity: 1 !important;
-        display: block;
-    }
-    .header104_heading-wrapper h1 span {
-        display: inline-block !important;
-    }
-
-    /* Light mode fix */
-    .page_wrap:not(.u-theme-dark):not(.u-theme-light) {
-        background-color: white !important;
-        color: #353233 !important;
-    }
-
-    /* FAQ animation styles */
-    .faq_icon-wrapper {
-        transition: transform 0.3s ease;
-    }
-
-    .faq_question {
-        transition: background-color 0.3s ease;
-    }
-
-    .faq_question:hover {
-        background-color: rgba(198, 251, 80, 0.1);
-    }
-
-    /* Animated characters */
-    .animated-char {
-        display: inline-block;
-        position: relative;
-        transform: translateY(15px) rotate(5deg);
-        opacity: 0;
-        transition: transform 0.3s, opacity 0.3s, color 0.3s;
-    }
-
-    .navbar-logo-char {
-        display: inline-block;
-        position: relative;
-    }
-
-    .footer-logo-char {
-        display: inline-block;
-        position: relative;
-    }
-  `;
-    document.head.appendChild(style);
-
-    // Cursor movement animation
-    const cursorMove = (e) => {
-        // Animate dot to follow cursor exactly
-        gsap.to(cursorDot, {
-            x: e.clientX,
-            y: e.clientY,
-            duration: 0.1,
-            ease: "power2.out"
-        });
-
-        // Animate outline to follow with slight delay for smooth effect
-        gsap.to(cursorOutline, {
-            x: e.clientX,
-            y: e.clientY,
-            duration: 0.5,
-            ease: "power2.out"
-        });
+    // --- Configuration ---
+    const THEME_SETTINGS = {
+        initialTheme: 'light', // 'light' or 'dark'
+        sections: [
+            { selector: 'header.header_wrap', theme: 'light' },
+            { selector: 'section.subheader_wrap', theme: 'dark' }, // Example: Make subheader dark
+            { selector: 'header.portfolio_wrap', theme: 'light' },
+            { selector: 'section.layout_wrap', theme: 'dark' }, // Example: Make services dark
+            { selector: 'section.faq_wrap', theme: 'light' },
+            { selector: 'footer.footer_component', theme: 'dark' }
+        ]
     };
 
-    // Add hover effect classes to interactive elements - ENHANCED CURSOR EFFECTS
-    const addHoverTargets = () => {
-        // Select all interactive elements
-        const targets = document.querySelectorAll('a, button, .btn_main_wrap, .portfolio_image-wrapper, .g_visual_wrap, .navbar_link, .footer_link, .faq_question, h1, h2, h3, h4, h5, h6, img');
-
-        targets.forEach(target => {
-            target.classList.add('hover-target');
-
-            // Mouse enter effect
-            target.addEventListener('mouseenter', () => {
-                // Add hover-active class to body for plus effect
-                document.body.classList.add('hover-active');
-
-                // Special effect for buttons
-                if (target.classList.contains('btn_main_wrap') || target.tagName === 'BUTTON') {
-                    gsap.to(cursorDot, {
-                        width: 10,
-                        height: 10,
-                        backgroundColor: "white",
-                        duration: 0.3
-                    });
-
-                    gsap.to(cursorOutline, {
-                        width: 50,
-                        height: 50,
-                        borderColor: "white",
-                        opacity: 0.8,
-                        duration: 0.3
-                    });
-                }
-                // Special effect for headings and images
-                else if (['H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'IMG'].includes(target.tagName) ||
-                    target.classList.contains('portfolio_image-wrapper') ||
-                    target.classList.contains('g_visual_wrap')) {
-
-                    // Check if we're in dark or light mode for color
-                    const isDarkMode = document.querySelector('.u-theme-dark') !== null;
-                    const color = isDarkMode ? "#c6fb50" : "#353233";
-
-                    gsap.to(cursorDot, {
-                        width: 12,
-                        height: 12,
-                        backgroundColor: color,
-                        duration: 0.3
-                    });
-
-                    gsap.to(cursorOutline, {
-                        width: 60,
-                        height: 60,
-                        borderColor: color,
-                        opacity: 0.6,
-                        duration: 0.3
-                    });
-
-                    // Add the plus sign effect via CSS classes
-                    const plusLines = document.querySelectorAll('.cursor-outline::before, .cursor-outline::after');
-                    if (plusLines.length) {
-                        gsap.to(plusLines, {
-                            backgroundColor: color,
-                            opacity: 1,
-                            duration: 0.3
-                        });
-                    }
-                }
-                // Default hover effect
-                else {
-                    gsap.to(cursorDot, {
-                        width: 8,
-                        height: 8,
-                        backgroundColor: "var(--swatch--brand, #c6fb50)",
-                        duration: 0.3
-                    });
-
-                    gsap.to(cursorOutline, {
-                        width: 40,
-                        height: 40,
-                        borderColor: "var(--swatch--brand, #c6fb50)",
-                        opacity: 0.8,
-                        duration: 0.3
-                    });
-                }
-            });
-
-            // Mouse leave effect
-            target.addEventListener('mouseleave', () => {
-                // Remove hover-active class from body
-                document.body.classList.remove('hover-active');
-
-                // Check if we're in dark or light mode
-                const isDarkMode = document.querySelector('.u-theme-dark') !== null;
-
-                gsap.to(cursorDot, {
-                    width: 6, // Back to smaller size
-                    height: 6,
-                    backgroundColor: isDarkMode ? "var(--swatch--brand, #c6fb50)" : "var(--swatch--dark, #353233)",
-                    duration: 0.3
-                });
-
-                gsap.to(cursorOutline, {
-                    width: 30, // Back to smaller size
-                    height: 30,
-                    borderColor: isDarkMode ? "var(--swatch--brand, #c6fb50)" : "var(--swatch--dark, #353233)",
-                    opacity: 1,
-                    duration: 0.3
-                });
-
-                // Hide the plus effect
-                const plusLines = document.querySelectorAll('.cursor-outline::before, .cursor-outline::after');
-                if (plusLines.length) {
-                    gsap.to(plusLines, {
-                        opacity: 0,
-                        duration: 0.3
-                    });
-                }
-            });
-        });
+    const CURSOR_COLORS = {
+        light: {
+            dot: 'var(--swatch--dark, #353233)',
+            outline: 'var(--swatch--dark, #353233)'
+        },
+        dark: {
+            dot: 'var(--swatch--brand, #c6fb50)',
+            outline: 'var(--swatch--brand, #c6fb50)'
+        }
     };
 
-    // Initialize cursor movement
-    document.addEventListener('mousemove', cursorMove);
+    const HOVER_SCALE = {
+        dot: 1.5, // Scale factor for dot on hover
+        outline: 1.8 // Scale factor for outline on hover
+    };
 
-    // Initialize hover targets
-    addHoverTargets();
+    const RIPPLE_EFFECT = {
+        scale: 4, // How much the outline expands for the ripple
+        duration: 0.5,
+        ease: "power2.out"
+    };
 
-    // Integrate with Lenis for smooth scrolling
-    // (The Lenis initialization is already in your HTML)
+    // --- Elements ---
+    const pageWrap = document.querySelector('.page_wrap');
+    const navbar = document.querySelector('.navbar_component');
 
-    // Connect GSAP ScrollTrigger to Lenis
-    if (typeof lenis !== 'undefined') {
-        lenis.on('scroll', ScrollTrigger.update);
+    // --- Initial Setup ---
+    const setupInitialState = () => {
+        if (!pageWrap) {
+            console.error("Page wrap element not found!");
+            return;
+        }
+        // Ensure smooth transitions are enabled
+        pageWrap.classList.add('section-transition');
+        if (navbar) {
+            navbar.classList.add('section-transition');
+        }
 
-        // Connect GSAP ticker to Lenis
-        gsap.ticker.add((time) => {
-            lenis.raf(time * 1000);
-        });
-
-        // Cancel default gsap ticker that might conflict with Lenis
-        gsap.ticker.lagSmoothing(0);
-    }
-
-    // Theme switching based on scroll position - RANDOMIZED VERSION
-    const setupThemeSwitching = () => {
-        try {
-            console.log("Setting up randomized theme switching"); // Debug log
-
-            // Add class to enable smooth transitions
-            const pageWrap = document.querySelector('.page_wrap');
-            const navbar = document.querySelector('.navbar_component');
-
-            if (!pageWrap) {
-                console.error("ERROR: Page wrap element not found!");
-                return;
-            }
-
-            if (pageWrap) {
-                pageWrap.classList.add('section-transition');
-            }
-            if (navbar) {
-                navbar.classList.add('section-transition');
-            }
-
-            // Set initial theme to LIGHT and make it visible
-            updateTheme('light');
-            console.log("Initial theme set to light");
-
-            // Get all sections
-            const sectionSelectors = [
-                'header.header_wrap',
-                'section.subheader_wrap',
-                'header.portfolio_wrap',
-                'section.layout_wrap',
-                'section.faq_wrap',
-                'footer.footer_component'
-            ];
-
-            // RANDOMIZE themes - but keep first section light and last section dark
-            const sections = [];
-
-            // First section is always light
-            sections.push({ selector: 'header.header_wrap', theme: 'light' });
-
-            // Randomize themes for middle sections
-            const middleSelectors = sectionSelectors.slice(1, -1);
-            middleSelectors.forEach(selector => {
-                // Randomly assign 'dark' or 'light' theme (50/50 chance)
-                const randomTheme = Math.random() < 0.5 ? 'dark' : 'light';
-                sections.push({ selector, theme: randomTheme });
-            });
-
-            // Last section is always dark
-            sections.push({ selector: 'footer.footer_component', theme: 'dark' });
-
-            console.log("Randomized sections:", sections);
-
-            // Verificar si las secciones existen
-            sections.forEach(section => {
-                const el = document.querySelector(section.selector);
-                if (!el) {
-                    console.warn(`Warning: Section with selector "${section.selector}" not found`);
+        // Force initial visibility for critical elements
+        document.querySelectorAll('.navbar_component, .header_content, .header_lightbox-image, .header104_heading-wrapper, h1, .header104_heading-wrapper h1 span').forEach(el => {
+            if (el) {
+                gsap.set(el, { visibility: 'visible', opacity: 1 });
+                if (el.tagName !== 'SPAN') {
+                    gsap.set(el, { display: 'block' });
                 } else {
-                    console.log(`Found section: ${section.selector} for theme ${section.theme}`);
+                    gsap.set(el, { display: 'inline-block' });
                 }
-            });
-
-            // Add visual indicators for debugging theme changes
-            sections.forEach(section => {
-                const el = document.querySelector(section.selector);
-                if (el) {
-                    // Add a data attribute to make debugging easier
-                    el.setAttribute('data-theme', section.theme);
-
-                    const indicator = document.createElement('div');
-                    indicator.className = 'theme-indicator';
-                    indicator.style.cssText = `
-                        position: absolute;
-                        top: 5px;
-                        right: 5px;
-                        width: 10px;
-                        height: 10px;
-                        border-radius: 50%;
-                        background-color: ${section.theme === 'dark' ? '#c6fb50' : '#353233'};
-                        opacity: 0.7;
-                        z-index: 999;
-                    `;
-
-                    // Ensure the section has position relative for the indicator
-                    const currentPosition = window.getComputedStyle(el).position;
-                    if (currentPosition === 'static') {
-                        el.style.position = 'relative';
-                    }
-
-                    el.appendChild(indicator);
-                }
-            });
-
-            // Force a refresh of ScrollTrigger
-            ScrollTrigger.refresh();
-
-            // Create simpler and more reliable triggers for theme switching
-            sections.forEach((section, index) => {
-                const el = document.querySelector(section.selector);
-                if (!el) return;
-
-                // Add a single ScrollTrigger with better position detection
-                ScrollTrigger.create({
-                    trigger: el,
-                    start: "top 50%", // Simplify to trigger at the middle of the viewport
-                    end: "bottom 50%",
-                    markers: false, // Set to true temporarily for debugging
-                    id: `theme-trigger-${index}`,
-                    onEnter: () => {
-                        console.log(`ENTER: ${section.selector} (${section.theme})`);
-                        updateTheme(section.theme);
-                    },
-                    onEnterBack: () => {
-                        console.log(`ENTER BACK: ${section.selector} (${section.theme})`);
-                        updateTheme(section.theme);
-                    }
-                });
-            });
-
-            // Apply theme for current scroll position
-            setTimeout(() => {
-                // Determinar qué sección es visible actualmente
-                const scrollPosition = window.scrollY + window.innerHeight / 2;
-                let currentSectionIndex = -1;
-
-                sections.forEach((section, index) => {
-                    const el = document.querySelector(section.selector);
-                    if (!el) return;
-
-                    const rect = el.getBoundingClientRect();
-                    const offsetTop = rect.top + window.scrollY;
-                    const offsetBottom = offsetTop + rect.height;
-
-                    if (scrollPosition >= offsetTop && scrollPosition <= offsetBottom) {
-                        currentSectionIndex = index;
-                    }
-                });
-
-                if (currentSectionIndex >= 0) {
-                    const currentSection = sections[currentSectionIndex];
-                    console.log(`Current visible section: ${currentSection.selector}, applying theme: ${currentSection.theme}`);
-                    updateTheme(currentSection.theme);
-                } else {
-                    console.log("No section detected at current scroll position, keeping light theme");
-                }
-            }, 100);
-
-        } catch (error) {
-            console.error("Error in setupThemeSwitching:", error);
-        }
+            }
+        });
+        // Set initial theme
+        updateTheme(THEME_SETTINGS.initialTheme);
     };
 
-    // Update theme function with better cursor handling - FIXED
-    const updateTheme = (theme) => {
-        try {
-            console.log("Updating theme to:", theme); // Debug log
-            const pageWrap = document.querySelector('.page_wrap');
-            const navbar = document.querySelector('.navbar_component');
+    // --- Custom Cursor ---
+    const createCustomCursor = () => {
+        const cursorDot = document.createElement("div");
+        const cursorOutline = document.createElement("div");
 
-            if (!pageWrap) {
-                console.error("ERROR: Page wrap element not found in updateTheme!");
-                return;
+        cursorDot.className = "cursor-dot";
+        cursorOutline.className = "cursor-outline";
+        document.body.appendChild(cursorDot);
+        document.body.appendChild(cursorOutline);
+
+        const style = document.createElement("style");
+        style.textContent = `
+            body { cursor: none; }
+            .cursor-dot, .cursor-outline {
+                position: fixed;
+                top: 0;
+                left: 0;
+                pointer-events: none;
+                z-index: 9999;
+                border-radius: 50%;
+                transform: translate(-50%, -50%);
+                will-change: transform, background-color, border-color, width, height, opacity;
+                transition: background-color 0.3s, border-color 0.3s; /* Smooth color transitions */
             }
-
-            // Primero eliminar cualquier tema existente para evitar conflictos
-            pageWrap.classList.remove('u-theme-dark', 'u-theme-light');
-
-            if (theme === 'dark') {
-                // Aplicar tema oscuro
-                pageWrap.classList.add('u-theme-dark');
-
-                // Actualizar navbar si existe
-                if (navbar) {
-                    navbar.setAttribute('data-wf--navbar--variant', 'dark');
-                    navbar.style.backgroundColor = 'rgba(0, 0, 0, 0.85)';
-                    navbar.style.color = 'white';
-                }
-
-                // Update cursor for dark theme
-                const cursorDot = document.querySelector('.cursor-dot');
-                const cursorOutline = document.querySelector('.cursor-outline');
-
-                if (cursorDot) {
-                    cursorDot.style.backgroundColor = "#c6fb50";
-                    cursorDot.style.boxShadow = "0 0 10px rgba(255,255,255,0.5)";
-                }
-
-                if (cursorOutline) {
-                    cursorOutline.style.borderColor = "#c6fb50";
-                    cursorOutline.style.boxShadow = "0 0 15px rgba(255,255,255,0.3)";
-                }
-
-                // Verificar si se aplicó correctamente el tema
-                setTimeout(() => {
-                    if (!pageWrap.classList.contains('u-theme-dark')) {
-                        console.warn("WARNING: Dark theme class was not applied correctly!");
-                        pageWrap.classList.add('u-theme-dark');
-                    }
-                }, 50);
-
-            } else {
-                // Aplicar tema claro
-                pageWrap.classList.add('u-theme-light');
-
-                // Actualizar navbar si existe
-                if (navbar) {
-                    navbar.setAttribute('data-wf--navbar--variant', 'light');
-                    navbar.style.backgroundColor = 'white';
-                    navbar.style.color = '#353233';
-                }
-
-                // Update cursor for light theme
-                const cursorDot = document.querySelector('.cursor-dot');
-                const cursorOutline = document.querySelector('.cursor-outline');
-
-                if (cursorDot) {
-                    cursorDot.style.backgroundColor = "#353233";
-                    cursorDot.style.boxShadow = "0 0 10px rgba(0,0,0,0.5)";
-                }
-
-                if (cursorOutline) {
-                    cursorOutline.style.borderColor = "#353233";
-                    cursorOutline.style.boxShadow = "0 0 15px rgba(0,0,0,0.3)";
-                }
-
-                // Verificar si se aplicó correctamente el tema
-                setTimeout(() => {
-                    if (!pageWrap.classList.contains('u-theme-light')) {
-                        console.warn("WARNING: Light theme class was not applied correctly!");
-                        pageWrap.classList.add('u-theme-light');
-                    }
-                }, 50);
+            .cursor-dot {
+                width: 8px;
+                height: 8px;
+                background-color: ${CURSOR_COLORS.light.dot}; /* Start with initial theme color */
             }
+            .cursor-outline {
+                width: 35px;
+                height: 35px;
+                border: 2px solid ${CURSOR_COLORS.light.outline}; /* Start with initial theme color */
+                z-index: 9998;
+                 /* Remove transition for scale/width/height - GSAP will handle */
+            }
+             /* Button specific hover - simpler */
+            .btn_main_wrap:hover ~ .cursor-dot,
+            button:hover ~ .cursor-dot,
+            a.w-button:hover ~ .cursor-dot {
+                background-color: white; /* Example: White dot on button hover */
+            }
+             .btn_main_wrap:hover ~ .cursor-outline,
+             button:hover ~ .cursor-outline,
+             a.w-button:hover ~ .cursor-outline {
+                border-color: white; /* Example: White outline */
+                opacity: 0.7;
+             }
+        `;
+        document.head.appendChild(style);
 
-            // Agregar un atributo de datos para facilitar la depuración
-            pageWrap.setAttribute('data-current-theme', theme);
+        const cursorMove = (e) => {
+            const posX = e.clientX;
+            const posY = e.clientY;
+            gsap.to(cursorDot, { x: posX, y: posY, duration: 0.1, ease: "power2.out" });
+            gsap.to(cursorOutline, { x: posX, y: posY, duration: 0.15, ease: "power2.out" });
+        };
 
-            // Forzar un reflow del DOM para asegurar que se apliquen los cambios
-            void pageWrap.offsetHeight;
+        document.addEventListener('mousemove', cursorMove);
 
-        } catch (error) {
-            console.error("Error in updateTheme:", error);
-        }
+        // Add hover effects
+        addCursorHoverEffects(cursorDot, cursorOutline);
+
+        // Return elements for theme updates
+        return { cursorDot, cursorOutline };
     };
 
-    // Add an event listener for scroll to help debug theme changes
-    document.addEventListener('scroll', () => {
-        // Throttle to avoid too many logs
-        if (!window.themeDebugThrottle) {
-            window.themeDebugThrottle = true;
-            setTimeout(() => {
-                const currentTheme = document.querySelector('.page_wrap').getAttribute('data-current-theme');
-                const hasDarkClass = document.querySelector('.page_wrap').classList.contains('u-theme-dark');
-                const hasLightClass = document.querySelector('.page_wrap').classList.contains('u-theme-light');
-
-                console.log(`Current theme: ${currentTheme}, Dark class: ${hasDarkClass}, Light class: ${hasLightClass}`);
-
-                window.themeDebugThrottle = false;
-            }, 1000);
-        }
-    });
-
-    // Add portfolio image animations with right-to-left motion
-    const animatePortfolioImages = () => {
-        const portfolioItems = document.querySelectorAll('.portfolio_image-wrapper');
-        const portfolioSection = document.querySelector('.portfolio_wrap');
-
-        // Cyberpunk colors
-        const cyberpunkColors = [
-            { background: 'rgba(246, 3, 171, 0.15)', text: '#f603ab' },  // Neon Pink
-            { background: 'rgba(12, 230, 242, 0.15)', text: '#0ce6f2' },  // Cyan
-            { background: 'rgba(201, 254, 38, 0.15)', text: '#c9fe26' }   // Lime Green
+    // --- Cursor Hover Effects (Refactored) ---
+    const addCursorHoverEffects = (cursorDot, cursorOutline) => {
+        const hoverableSelectors = [
+            'a',
+            'button',
+            '.btn_main_wrap',
+            '.navbar_brand',
+            '.navbar_link',
+            '.overlay_link',
+            '.logo_icon',
+            '.layout_item',
+            '.header104_heading-wrapper h1 span', // Keep specific targets if needed
+            '.portfolio_image-wrap',
+            '.faq_question',
+            '.g_heading', // General headings
+            '.g_subheading',
+            '[role="button"]' // Accessibility
         ];
+        const hoverTargets = document.querySelectorAll(hoverableSelectors.join(', '));
 
-        // Store original colors
-        let originalBgColor = '';
-        let originalTextColor = '';
+        hoverTargets.forEach(target => {
+            let hoverTimeline; // Store the timeline for reversing
 
-        if (portfolioSection) {
-            // Save original colors
-            originalBgColor = window.getComputedStyle(portfolioSection).backgroundColor;
-            originalTextColor = window.getComputedStyle(portfolioSection).color;
+            target.addEventListener('mouseenter', () => {
+                const isButton = target.closest('.btn_main_wrap') || target.tagName === 'BUTTON' || target.classList.contains('w-button');
 
-            // Add transition for smooth color change
-            portfolioSection.style.transition = 'background-color 0.6s ease, color 0.6s ease';
-        }
+                // Kill previous tweens to prevent conflicts
+                gsap.killTweensOf([cursorDot, cursorOutline]);
 
-        portfolioItems.forEach((item, index) => {
-            // Assign a color based on index (cycling through the 3 colors)
-            const colorIndex = index % cyberpunkColors.length;
-            const color = cyberpunkColors[colorIndex];
+                hoverTimeline = gsap.timeline();
 
-            // Add data attribute to remember which color this item uses
-            item.setAttribute('data-color-index', colorIndex);
-
-            // Create enhanced hover effect
-            item.addEventListener('mouseenter', () => {
-                // Scale the item with slight rotation
-                gsap.to(item, {
-                    scale: 1.03,
-                    rotation: 0.5,
-                    duration: 0.5,
+                // Base scale effect for dot and outline
+                hoverTimeline.to(cursorDot, {
+                    scale: HOVER_SCALE.dot,
+                    duration: 0.3,
                     ease: "power2.out"
-                });
+                }, 0);
 
-                // Change section color
-                if (portfolioSection) {
-                    gsap.to(portfolioSection, {
-                        backgroundColor: color.background,
-                        color: color.text,
-                        duration: 0.6,
-                        ease: "power2.out"
-                    });
+                hoverTimeline.to(cursorOutline, {
+                    scale: HOVER_SCALE.outline,
+                    duration: 0.3,
+                    ease: "power2.out"
+                }, 0);
 
-                    // Add glow effect to section
-                    portfolioSection.style.boxShadow = `0 0 30px ${color.background}`;
-
-                    // Also update the cursor to match color
-                    const cursorDot = document.querySelector('.cursor-dot');
-                    const cursorOutline = document.querySelector('.cursor-outline');
-
-                    if (cursorDot && cursorOutline) {
-                        gsap.to(cursorDot, {
-                            backgroundColor: color.text,
-                            duration: 0.3
-                        });
-
-                        gsap.to(cursorOutline, {
-                            borderColor: color.text,
-                            duration: 0.3
-                        });
-                    }
+                // Apply WAVE effect to outline (unless it's a button, CSS handles button style)
+                if (!isButton) {
+                    // Animate the outline expanding and fading
+                    hoverTimeline.fromTo(cursorOutline,
+                        {
+                            opacity: 1,
+                            borderWidth: '2px',
+                            scale: HOVER_SCALE.outline // Start from the hover scale
+                        },
+                        {
+                            scale: HOVER_SCALE.outline * RIPPLE_EFFECT.scale, // Expand further
+                            opacity: 0,
+                            borderWidth: '1px', // Make border thinner as it expands
+                            duration: RIPPLE_EFFECT.duration,
+                            ease: RIPPLE_EFFECT.ease
+                        }, 0); // Start wave at the same time as scaling
+                } else {
+                    // For buttons, maybe just reduce outline opacity slightly
+                    hoverTimeline.to(cursorOutline, { opacity: 0.7, duration: 0.3 }, 0);
                 }
             });
 
-            item.addEventListener('mouseleave', () => {
-                // Return item to original scale and rotation
-                gsap.to(item, {
+            target.addEventListener('mouseleave', () => {
+                // Kill any running hover animations and reverse smoothly
+                gsap.killTweensOf([cursorDot, cursorOutline]);
+                gsap.to([cursorDot, cursorOutline], {
                     scale: 1,
-                    rotation: 0,
-                    duration: 0.5,
-                    ease: "power2.out"
+                    opacity: 1,
+                    borderWidth: '2px', // Reset border width
+                    duration: 0.3,
+                    ease: "power2.out",
+                    overwrite: true // Ensure it overrides any part of the enter animation
                 });
-
-                // Return section to original color
-                if (portfolioSection) {
-                    gsap.to(portfolioSection, {
-                        backgroundColor: originalBgColor,
-                        color: originalTextColor,
-                        duration: 0.6,
-                        ease: "power2.out"
-                    });
-
-                    // Remove glow effect
-                    portfolioSection.style.boxShadow = 'none';
-
-                    // Reset cursor
-                    const isDarkMode = document.querySelector('.u-theme-dark') !== null;
-                    const cursorDot = document.querySelector('.cursor-dot');
-                    const cursorOutline = document.querySelector('.cursor-outline');
-
-                    if (cursorDot && cursorOutline) {
-                        gsap.to(cursorDot, {
-                            backgroundColor: isDarkMode ? "#c6fb50" : "#353233",
-                            duration: 0.3
-                        });
-
-                        gsap.to(cursorOutline, {
-                            borderColor: isDarkMode ? "#c6fb50" : "#353233",
-                            duration: 0.3
-                        });
-                    }
-                }
-            });
-
-            // Create right-to-left entry animation (instead of bottom-up)
-            gsap.set(item, {
-                opacity: 0,
-                x: 100, // Start from right
-                rotation: 2 // Slight rotation
-            });
-
-            ScrollTrigger.create({
-                trigger: item,
-                start: "top 85%",
-                onEnter: () => {
-                    gsap.to(item, {
-                        x: 0, // Move to original position
-                        opacity: 1,
-                        rotation: 0, // Rotate back to normal
-                        duration: 0.9,
-                        delay: index * 0.15,
-                        ease: "power3.out"
-                    });
-                },
-                once: true
             });
         });
     };
 
-    // Animate the heading spans - SIMPLIFIED VERSION
-    const animateHeadingSpans = () => {
-        try {
-            console.log("Starting heading animation"); // Debug
-            const heading = document.querySelector('.header104_heading-wrapper h1');
-            if (!heading) {
-                console.log("Heading not found!"); // Debug
-                return;
-            }
 
-            // First make the whole heading visible without animation
-            gsap.set(heading, {
-                visibility: "visible",
-                opacity: 1,
-                display: "block"
-            });
+    // --- Theme Management ---
+    const setupThemeSwitching = (cursorDot, cursorOutline) => {
+        if (!pageWrap) return;
 
-            // Get all spans
-            const spans = heading.querySelectorAll('span');
-            console.log(`Found ${spans.length} spans in heading`); // Debug
+        // Add class for transitions if not already present
+        pageWrap.classList.add('section-transition');
+        if (navbar) navbar.classList.add('section-transition');
 
-            // Simply make spans visible first, then animate them
-            spans.forEach(span => {
-                gsap.set(span, {
-                    visibility: "visible",
-                    opacity: 1,
-                    display: "inline-block"
+        // Create ScrollTriggers for each defined section
+        THEME_SETTINGS.sections.forEach((sectionInfo) => {
+            const element = document.querySelector(sectionInfo.selector);
+            if (element) {
+                ScrollTrigger.create({
+                    trigger: element,
+                    start: "top 50%", // Trigger when section middle hits viewport middle
+                    end: "bottom 50%",
+                    // markers: true, // Uncomment for debugging
+                    onEnter: () => updateTheme(sectionInfo.theme, cursorDot, cursorOutline),
+                    onEnterBack: () => updateTheme(sectionInfo.theme, cursorDot, cursorOutline)
                 });
-            });
+            } else {
+                console.warn(`Theme section selector not found: ${sectionInfo.selector}`);
+            }
+        });
 
-            // Now add animations
-            gsap.fromTo(spans,
-                { opacity: 0, x: 50 },
-                {
-                    opacity: 1,
-                    x: 0,
-                    duration: 0.8,
-                    stagger: 0.2,
-                    ease: "power3.out",
-                    delay: 0.5
+        // Ensure initial theme is applied correctly after setup
+        // Use timeout to allow layout calculation
+        setTimeout(() => {
+            let currentSectionTheme = THEME_SETTINGS.initialTheme;
+            // Find the section currently in view
+            const scrollMidPoint = window.scrollY + window.innerHeight / 2;
+            for (const sectionInfo of THEME_SETTINGS.sections) {
+                const element = document.querySelector(sectionInfo.selector);
+                if (element) {
+                    const rect = element.getBoundingClientRect();
+                    const elementTop = rect.top + window.scrollY;
+                    const elementBottom = elementTop + rect.height;
+                    if (scrollMidPoint >= elementTop && scrollMidPoint < elementBottom) {
+                        currentSectionTheme = sectionInfo.theme;
+                        break;
+                    }
                 }
-            );
-        } catch (error) {
-            console.error("Error in animateHeadingSpans:", error);
-        }
+            }
+            updateTheme(currentSectionTheme, cursorDot, cursorOutline);
+        }, 100); // Short delay
     };
 
-    // Animate the header video - SIMPLIFIED LATERAL ENTRY
-    const animateHeaderVideo = () => {
-        try {
-            const headerVideo = document.querySelector('.header_lightbox-image');
-            const headerSection = document.querySelector('.header_wrap');
+    // --- Update Theme Function ---
+    const updateTheme = (theme, cursorDot, cursorOutline) => {
+        if (!pageWrap || !cursorDot || !cursorOutline) return;
 
-            if (!headerVideo || !headerSection) {
-                console.log("Header video container or section not found"); // Debug
-                return;
-            }
+        const isDark = theme === 'dark';
+        pageWrap.classList.toggle('u-theme-dark', isDark);
+        pageWrap.classList.toggle('u-theme-light', !isDark);
+        pageWrap.setAttribute('data-current-theme', theme);
 
-            // First ensure video container is visible but with clipPath initially hiding it
+        // Update Navbar
+        if (navbar) {
+            navbar.setAttribute('data-wf--navbar--variant', theme);
+            // Optionally, directly set styles if needed, but variant should handle it
+            // navbar.style.backgroundColor = isDark ? 'rgba(0, 0, 0, 0.85)' : 'white';
+            // navbar.style.color = isDark ? 'white' : '#353233';
+        }
+
+        // Update Cursor Colors (using direct style for immediate effect)
+        const colors = isDark ? CURSOR_COLORS.dark : CURSOR_COLORS.light;
+        gsap.to(cursorDot, { backgroundColor: colors.dot, duration: 0.3 });
+        gsap.to(cursorOutline, { borderColor: colors.outline, duration: 0.3 });
+
+        // Force reflow might not be necessary with GSAP controlling transitions
+        // void pageWrap.offsetHeight;
+    };
+
+
+    // --- Section Animations ---
+
+    // Header Animation (Heading + Video)
+    const animateHeader = () => {
+        const heading = document.querySelector('.header104_heading-wrapper h1');
+        const headerVideo = document.querySelector('.header_lightbox-image');
+        const headerSection = document.querySelector('.header_wrap');
+
+        // Heading Span Animation (Right to Left)
+        if (heading) {
+            const spans = heading.querySelectorAll('span');
+            gsap.set(heading, { opacity: 1 }); // Ensure container is visible
+            gsap.set(spans, { opacity: 1 }); // Ensure spans are visible
+            gsap.from(spans, {
+                opacity: 0,
+                x: 50, // Start from right
+                duration: 0.8,
+                stagger: 0.1, // Reduced stagger
+                ease: "power3.out",
+                delay: 0.5 // Delay after page load
+            });
+        }
+
+        // Video Animation (Clip Path Reveal)
+        if (headerVideo && headerSection) {
             gsap.set(headerVideo, {
                 visibility: "visible",
                 opacity: 1,
-                display: "block",
-                zIndex: 2,
-                clipPath: 'polygon(0% 0%, 0% 0%, 0% 100%, 0% 100%)' // Inicialmente oculto (desde la izquierda)
+                clipPath: 'inset(0% 100% 0% 0%)' // Start clipped from the right
             });
-
-            // Get the actual video element
-            const videoEl = headerVideo.querySelector('video') || headerVideo.querySelector('img');
-            if (videoEl) {
-                gsap.set(videoEl, {
-                    visibility: "visible",
-                    opacity: 1
-                });
-            }
-
-            // Lateral reveal animation - similar to the example provided
             gsap.to(headerVideo, {
-                clipPath: 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)', // Reveal completely
+                clipPath: 'inset(0% 0% 0% 0%)', // Reveal fully
                 ease: "power2.inOut",
                 scrollTrigger: {
                     trigger: headerSection,
                     start: "top top",
-                    end: "+=100%", // Similar to example that used +=200%
+                    end: "bottom center", // Reveal faster
                     scrub: 1,
-                    markers: false
                 }
             });
-
-            // Add slight scale effect to video element if it exists
+            // Optional: slight scale on the video itself
+            const videoEl = headerVideo.querySelector('video, img');
             if (videoEl) {
                 gsap.from(videoEl, {
-                    scale: 1.1,
+                    scale: 1.05, // Start slightly zoomed in
                     ease: "power2.inOut",
                     scrollTrigger: {
                         trigger: headerSection,
                         start: "top top",
-                        end: "+=100%",
+                        end: "bottom center",
                         scrub: 1
                     }
                 });
             }
-
-        } catch (error) {
-            console.error("Error in animateHeaderVideo:", error);
         }
     };
 
-    // Animate the subheader section with improved text reveal - FIXED TO ONLY APPLY TO SPECIFIC TEXT
+    // Subheader Text Reveal
     const animateSubheader = () => {
         const subheader = document.querySelector('.subheader_wrap');
         if (!subheader) return;
 
-        // Be more specific - only get the first paragraph or one containing the text "Great ideas"
-        const longTextParagraph = Array.from(subheader.querySelectorAll('.u-rich-text p')).find(p =>
-            p.textContent.includes('Greatideas') ||
-            p.textContent.includes('Great ideas') ||
-            p.textContent.toLowerCase().includes('ideas')
-        );
+        // Target the specific rich text paragraph for word reveal
+        const richTextParagraph = subheader.querySelector('.u-rich-text p'); // Adjust selector if needed
+        if (richTextParagraph) {
+            const text = richTextParagraph.textContent;
+            richTextParagraph.innerHTML = ''; // Clear original text
+            richTextParagraph.style.opacity = 1;
 
-        if (longTextParagraph) {
-            // Only process this specific paragraph
-            const text = longTextParagraph.textContent;
-            longTextParagraph.innerHTML = '';
-            longTextParagraph.style.opacity = 1; // Make container visible
-
-            // Create word spans
-            text.split(' ').forEach((word, index) => {
-                const wordSpan = document.createElement('span');
-                wordSpan.className = 'reveal-text';
-                wordSpan.style.display = 'inline-block';
-                wordSpan.style.marginRight = '0.25em';
-                wordSpan.textContent = word;
-                longTextParagraph.appendChild(wordSpan);
+            text.split(/(\s+)/).forEach(part => { // Split by spaces, keeping spaces
+                if (part.trim().length > 0) {
+                    const wordSpan = document.createElement('span');
+                    wordSpan.className = 'reveal-word';
+                    wordSpan.style.display = 'inline-block';
+                    wordSpan.style.opacity = 0;
+                    wordSpan.style.transform = 'translateY(20px)';
+                    wordSpan.textContent = part;
+                    richTextParagraph.appendChild(wordSpan);
+                } else {
+                    // Append spaces directly as text nodes
+                    richTextParagraph.appendChild(document.createTextNode(part));
+                }
             });
 
-            // Create animation only for this paragraph
+            const words = richTextParagraph.querySelectorAll('.reveal-word');
             ScrollTrigger.create({
-                trigger: longTextParagraph,
-                start: "top 80%",
+                trigger: richTextParagraph,
+                start: "top 85%",
+                once: true,
                 onEnter: () => {
-                    const words = longTextParagraph.querySelectorAll('.reveal-text');
                     gsap.to(words, {
                         opacity: 1,
                         y: 0,
-                        stagger: 0.02, // Slightly faster stagger
-                        duration: 0.7,
+                        stagger: 0.03, // Faster stagger
+                        duration: 0.6,
                         ease: "power3.out"
                     });
-                },
-                once: true
+                }
             });
-        } else {
-            console.log("Specific paragraph not found in subheader");
         }
     };
 
-    // Animate services section with improved animations
-    const animateServices = () => {
-        const services = document.querySelector('.layout_wrap');
-        if (!services) return;
+    // Portfolio Section Animation
+    const animatePortfolio = () => {
+        const portfolioItems = gsap.utils.toArray('.portfolio_image-wrapper'); // More robust selection
+        if (portfolioItems.length === 0) return;
 
-        const title = services.querySelector('.g_heading');
-        const lists = services.querySelectorAll('.layout_item-list');
-        const items = services.querySelectorAll('.layout_item');
-
-        gsap.set([title, ...lists], { opacity: 0, y: 30 });
-        gsap.set(items, { opacity: 0, x: -30 });
-
-        ScrollTrigger.create({
-            trigger: services,
-            start: "top 70%",
-            onEnter: () => {
-                gsap.to(title, {
-                    opacity: 1,
-                    y: 0,
-                    duration: 0.8,
-                    ease: "power3.out"
-                });
-
-                gsap.to(lists, {
-                    opacity: 1,
-                    y: 0,
-                    duration: 0.8,
-                    stagger: 0.15,
-                    ease: "power3.out",
-                    delay: 0.3
-                });
-
-                gsap.to(items, {
-                    opacity: 1,
-                    x: 0,
-                    duration: 0.8,
-                    stagger: 0.08,
-                    ease: "power3.out",
-                    delay: 0.5
-                });
-            },
-            once: true
-        });
-    };
-
-    // Animate general sections
-    const animateGeneralSections = () => {
-        // Find all major section headings and content blocks
-        const sections = document.querySelectorAll('section, header:not(.navbar_component)');
-
-        sections.forEach(section => {
-            // Skip already animated sections
-            if (section.classList.contains('header_wrap') ||
-                section.classList.contains('subheader_wrap') ||
-                section.classList.contains('layout_wrap') ||
-                section.classList.contains('portfolio_wrap')) {
-                return;
-            }
-
-            const headings = section.querySelectorAll('h1, h2, h3, h4, h5, h6');
-            const contentBlocks = section.querySelectorAll('p, .btn_main_wrap, .layout_item, .faq_accordion');
-
-            gsap.set(headings, { opacity: 0, y: 20 });
-            gsap.set(contentBlocks, { opacity: 0, y: 30 });
+        portfolioItems.forEach((item, index) => {
+            gsap.set(item, { opacity: 0, x: 80, rotation: 1 }); // Start from right, slightly rotated
 
             ScrollTrigger.create({
-                trigger: section,
-                start: "top 75%",
+                trigger: item,
+                start: "top 90%", // Trigger a bit later
+                once: true,
                 onEnter: () => {
-                    gsap.to(headings, {
+                    gsap.to(item, {
+                        x: 0,
                         opacity: 1,
-                        y: 0,
+                        rotation: 0,
                         duration: 0.8,
-                        stagger: 0.1,
-                        ease: "power2.out"
+                        delay: index * 0.1, // Slightly less delay
+                        ease: "power3.out"
                     });
-
-                    gsap.to(contentBlocks, {
-                        opacity: 1,
-                        y: 0,
-                        duration: 0.9,
-                        stagger: 0.07,
-                        ease: "power2.out",
-                        delay: 0.2
-                    });
-                },
-                once: true
-            });
-        });
-    };
-
-    // Add header animation
-    const animateHeader = () => {
-        // Replace the default header animation with our new specialized animations
-        animateHeadingSpans();
-        animateHeaderVideo();
-    };
-
-    // FAQ accordion animation with ENHANCED DYNAMIC effects
-    const animateFAQ = () => {
-        const faqQuestions = document.querySelectorAll('.faq_question');
-        const faqItems = document.querySelectorAll('.faq_accordion');
-
-        // Usar la técnica proporcionada para animar las preguntas
-        const faqBoxes = gsap.utils.toArray('.faq_question');
-        faqBoxes.forEach(box => {
-            // Configurar el estado inicial - ancho reducido
-            gsap.set(box, {
-                width: '90%',
-                transformOrigin: 'left center'
-            });
-
-            // Animar al hacer scroll
-            gsap.to(box, {
-                duration: 1.2,
-                ease: "expo.out",
-                width: '100%',
-                backgroundColor: 'rgba(198, 251, 80, 0.1)',
-                scrollTrigger: {
-                    trigger: box,
-                    start: "top 80%",
-                    toggleActions: "play none none reverse",
                 }
             });
-        });
 
-        faqQuestions.forEach(question => {
-            // Add initial plus/minus icon state
+            // Subtle hover scale
+            item.addEventListener('mouseenter', () => {
+                gsap.to(item, { scale: 1.03, duration: 0.4, ease: "power2.out" });
+            });
+            item.addEventListener('mouseleave', () => {
+                gsap.to(item, { scale: 1, duration: 0.4, ease: "power2.out" });
+            });
+        });
+    };
+
+    // Services Section Animation
+    const animateServices = () => {
+        const servicesSection = document.querySelector('.layout_wrap');
+        if (!servicesSection) return;
+
+        const title = servicesSection.querySelector('.g_heading');
+        const items = gsap.utils.toArray(servicesSection.querySelectorAll('.layout_item'));
+
+        // Animate title
+        if (title) {
+            gsap.set(title, { opacity: 0, y: 30 });
+            ScrollTrigger.create({
+                trigger: title,
+                start: "top 85%",
+                once: true,
+                onEnter: () => {
+                    gsap.to(title, { opacity: 1, y: 0, duration: 0.8, ease: "power3.out" });
+                }
+            });
+        }
+
+        // Animate items (staggered from left)
+        if (items.length > 0) {
+            gsap.set(items, { opacity: 0, x: -40 }); // Start from left
+            ScrollTrigger.create({
+                trigger: servicesSection, // Trigger based on the section
+                start: "top 75%",
+                once: true,
+                onEnter: () => {
+                    gsap.to(items, {
+                        opacity: 1,
+                        x: 0,
+                        duration: 0.7,
+                        stagger: 0.1,
+                        ease: "power3.out",
+                        delay: 0.2 // Slight delay after title might appear
+                    });
+                }
+            });
+        }
+    };
+
+    // FAQ Section Animation
+    const animateFAQ = () => {
+        const faqSection = document.querySelector('.faq_wrap');
+        if (!faqSection) return;
+
+        const faqTitle = faqSection.querySelector('.g_heading'); // Assuming a general heading class
+        const faqQuestions = gsap.utils.toArray(faqSection.querySelectorAll('.faq_question'));
+        const faqAnswers = gsap.utils.toArray(faqSection.querySelectorAll('.faq_answer'));
+
+        // Initial state: hide answers
+        gsap.set(faqAnswers, { height: 0, opacity: 0, display: 'none' });
+
+        // Animate Title
+        if (faqTitle) {
+            gsap.set(faqTitle, { opacity: 0, y: 30 });
+            ScrollTrigger.create({
+                trigger: faqTitle,
+                start: "top 85%",
+                once: true,
+                onEnter: () => {
+                    gsap.to(faqTitle, { opacity: 1, y: 0, duration: 0.8, ease: "power3.out" });
+                }
+            });
+        }
+
+        // Animate Questions reveal (subtle slide-in)
+        if (faqQuestions.length > 0) {
+            gsap.set(faqQuestions, { opacity: 0, y: 20 });
+            ScrollTrigger.create({
+                trigger: faqSection,
+                start: "top 70%",
+                once: true,
+                onEnter: () => {
+                    gsap.to(faqQuestions, {
+                        opacity: 1,
+                        y: 0,
+                        duration: 0.6,
+                        stagger: 0.08,
+                        ease: "power3.out",
+                        delay: 0.2 // Delay after title
+                    });
+                }
+            });
+        }
+
+        // Accordion Interaction
+        faqQuestions.forEach((question, index) => {
+            const answer = question.nextElementSibling; // Assumes answer is the direct sibling
             const iconWrapper = question.querySelector('.faq_icon-wrapper');
 
-            // Add hover effect to FAQ questions
-            question.addEventListener('mouseenter', () => {
-                gsap.to(question, {
-                    backgroundColor: 'rgba(198, 251, 80, 0.15)',
-                    scale: 1.02,
-                    duration: 0.3
-                });
-
-                if (iconWrapper) {
-                    gsap.to(iconWrapper, {
-                        scale: 1.2,
-                        rotation: 45,
-                        duration: 0.3
-                    });
-                }
-            });
-
-            question.addEventListener('mouseleave', () => {
-                // No removemos el background color para mantener el efecto del scrollTrigger
-                gsap.to(question, {
-                    scale: 1,
-                    duration: 0.3
-                });
-
-                if (iconWrapper && !question.classList.contains('active-faq')) {
-                    gsap.to(iconWrapper, {
-                        scale: 1,
-                        rotation: 0,
-                        duration: 0.3
-                    });
-                }
-            });
+            if (!answer || !answer.classList.contains('faq_answer')) return; // Basic validation
 
             question.addEventListener('click', () => {
-                const answer = question.nextElementSibling;
-                const isOpen = answer.style.height !== '0px' && answer.style.height !== '';
+                const isOpen = question.classList.contains('active-faq');
 
-                // Toggle active class
-                question.classList.toggle('active-faq', !isOpen);
-
-                // Close all other FAQs
-                faqQuestions.forEach(q => {
-                    if (q !== question) {
+                // Close all others first
+                faqQuestions.forEach((q, i) => {
+                    if (i !== index && q.classList.contains('active-faq')) {
+                        const otherAnswer = q.nextElementSibling;
+                        const otherIcon = q.querySelector('.faq_icon-wrapper');
                         q.classList.remove('active-faq');
-                        const a = q.nextElementSibling;
-                        const i = q.querySelector('.faq_icon-wrapper');
-
-                        if (a.style.height !== '0px' && a.style.height !== '') {
-                            // Enhanced closing animation
-                            gsap.to(a, {
-                                height: 0,
-                                opacity: 0,
-                                duration: 0.4,
-                                ease: "power2.inOut"
-                            });
-
-                            if (i) {
-                                gsap.to(i, {
-                                    rotation: 0,
-                                    scale: 1,
-                                    duration: 0.3,
-                                    ease: "power2.inOut"
-                                });
-                            }
-                        }
+                        gsap.to(otherAnswer, { height: 0, opacity: 0, display: 'none', duration: 0.4, ease: "power2.inOut" });
+                        if (otherIcon) gsap.to(otherIcon, { rotation: 0, duration: 0.3 });
                     }
                 });
 
-                if (isOpen) {
-                    // Close this FAQ with enhanced effect
+                // Toggle clicked question
+                question.classList.toggle('active-faq', !isOpen);
+
+                if (!isOpen) {
+                    // Open: Set auto height, then animate from 0
+                    gsap.set(answer, { display: 'block', height: 'auto' }); // Measure height
+                    gsap.fromTo(answer,
+                        { height: 0, opacity: 0 },
+                        { height: 'auto', opacity: 1, duration: 0.5, ease: "power2.out" }
+                    );
+                    if (iconWrapper) gsap.to(iconWrapper, { rotation: 135, duration: 0.3 }); // Rotate icon
+                } else {
+                    // Close: Animate to height 0
                     gsap.to(answer, {
                         height: 0,
                         opacity: 0,
                         duration: 0.4,
-                        ease: "power2.inOut"
+                        ease: "power2.inOut",
+                        onComplete: () => gsap.set(answer, { display: 'none' }) // Hide after closing
                     });
-
-                    if (iconWrapper) {
-                        gsap.to(iconWrapper, {
-                            rotation: 0,
-                            scale: 1,
-                            duration: 0.3,
-                            ease: "power2.inOut"
-                        });
-                    }
-
-                } else {
-                    // Open this FAQ with enhanced effect
-                    // First make it visible to measure height
-                    answer.style.opacity = 0;
-                    answer.style.height = 'auto';
-                    answer.style.display = 'block';
-
-                    const height = answer.offsetHeight;
-                    answer.style.height = '0px';
-
-                    // Add more dynamic "opening" animation
-                    gsap.to(answer, {
-                        height: height,
-                        opacity: 1,
-                        duration: 0.5,
-                        ease: "power2.out"
-                    });
-
-                    if (iconWrapper) {
-                        gsap.to(iconWrapper, {
-                            rotation: 135,
-                            scale: 1.2,
-                            duration: 0.3,
-                            ease: "power2.inOut"
-                        });
-                    }
-
-                    // Add subtle animation to answer content
-                    const answerContent = answer.querySelector('.faq_answer-text');
-                    if (answerContent) {
-                        gsap.fromTo(answerContent,
-                            { y: 20, opacity: 0 },
-                            { y: 0, opacity: 1, duration: 0.5, delay: 0.1, ease: "power2.out" }
-                        );
-                    }
+                    if (iconWrapper) gsap.to(iconWrapper, { rotation: 0, duration: 0.3 });
                 }
             });
-        });
 
-        // Initial animation of FAQ section with more dynamic effects
-        const faqSection = document.querySelector('.faq_wrap');
-        if (faqSection) {
-            const faqTitle = faqSection.querySelector('h2, h3, .g_heading');
-
-            if (faqTitle) {
-                // Animate title characters
-                const titleText = faqTitle.textContent;
-                faqTitle.innerHTML = '';
-
-                // Create character spans
-                [...titleText].forEach((char, index) => {
-                    const charSpan = document.createElement('span');
-                    charSpan.className = 'animated-char';
-                    charSpan.textContent = char === ' ' ? '\u00A0' : char;
-                    faqTitle.appendChild(charSpan);
-                });
-            }
-
-            gsap.set(faqTitle, { opacity: 1 }); // Keep container visible but chars are hidden
-            gsap.set(faqItems, { opacity: 0, y: 40 });
-
-            ScrollTrigger.create({
-                trigger: faqSection,
-                start: "top 70%",
-                onEnter: () => {
-                    // Animate title characters
-                    const chars = faqSection.querySelectorAll('.animated-char');
-                    if (chars.length > 0) {
-                        gsap.to(chars, {
-                            y: 0,
-                            rotation: 0,
-                            opacity: 1,
-                            stagger: 0.03,
-                            duration: 0.8,
-                            ease: "power3.out"
-                        });
-                    } else if (faqTitle) {
-                        // Fallback animation if character split didn't work
-                        gsap.to(faqTitle, {
-                            opacity: 1,
-                            y: 0,
-                            duration: 0.8,
-                            ease: "power3.out"
-                        });
-                    }
-
-                    // More dynamic staggered reveal for FAQ items
-                    gsap.to(faqItems, {
-                        opacity: 1,
-                        y: 0,
-                        stagger: 0.12,
-                        duration: 0.7,
-                        ease: "power3.out",
-                        delay: 0.2,
-                        onComplete: () => {
-                            // Add subtle bounce effect after items appear
-                            faqItems.forEach((item, index) => {
-                                gsap.to(item, {
-                                    y: -5,
-                                    duration: 0.3,
-                                    delay: index * 0.05,
-                                    yoyo: true,
-                                    repeat: 1,
-                                    ease: "power2.inOut"
-                                });
-                            });
-                        }
-                    });
-                },
-                once: true
+            // Subtle hover effect on question
+            question.addEventListener('mouseenter', () => {
+                gsap.to(question, { backgroundColor: 'rgba(198, 251, 80, 0.08)', duration: 0.3 });
             });
-        }
+            question.addEventListener('mouseleave', () => {
+                gsap.to(question, { backgroundColor: 'transparent', duration: 0.3 });
+            });
+        });
     };
 
-    // Footer animation with improved effects and animated logo
+    // Footer Animation
     const animateFooter = () => {
-        const footer = document.querySelector('footer');
+        const footer = document.querySelector('footer.footer_component');
         if (!footer) return;
 
-        const footerLogo = footer.querySelector('.g_heading');
-        const footerColumns = footer.querySelectorAll('.footer_link-list');
-        const footerLinks = footer.querySelectorAll('.footer_link, .footer16_link');
-        const footerForm = footer.querySelector('.footer_form-block');
+        const footerContent = footer.querySelectorAll('.footer_content-wrapper > *'); // Target direct children
         const footerBottom = footer.querySelector('.footer_bottom-wrapper');
 
-        // Enhanced animation for the totoropixel logo
-        if (footerLogo) {
-            // Split the text into characters for animation if it contains "totoropixel"
-            if (footerLogo.textContent.toLowerCase().includes('totoropixel')) {
-                const logoText = footerLogo.textContent;
-                footerLogo.innerHTML = '';
-
-                // Create a wrapper for the animated text
-                const textWrapper = document.createElement('div');
-                textWrapper.className = 'footer-logo-wrapper';
-                footerLogo.appendChild(textWrapper);
-
-                // Split into characters
-                [...logoText].forEach((char, index) => {
-                    const charSpan = document.createElement('span');
-                    charSpan.className = 'footer-logo-char';
-                    charSpan.textContent = char;
-                    charSpan.style.display = 'inline-block';
-                    charSpan.style.position = 'relative';
-                    charSpan.style.transform = 'translateY(30px) rotate(10deg)';
-                    charSpan.style.opacity = '0';
-                    textWrapper.appendChild(charSpan);
-                });
-            }
-        }
-
-        // Set up animations
-        gsap.set(footerLogo, { opacity: 1 }); // Keep the container visible
-        gsap.set(footerColumns, { opacity: 0, y: 30 });
-        gsap.set(footerLinks, { opacity: 0, y: 20 });
-        gsap.set(footerForm, { opacity: 0, y: 30 });
-        gsap.set(footerBottom, { opacity: 0, y: 20 });
-
-        ScrollTrigger.create({
-            trigger: footer,
-            start: "top 75%",
-            onEnter: () => {
-                // Animated logo chars
-                const logoChars = footer.querySelectorAll('.footer-logo-char');
-                if (logoChars.length > 0) {
-                    gsap.to(logoChars, {
-                        y: 0,
-                        rotation: 0,
+        // Animate main content blocks
+        if (footerContent.length > 0) {
+            gsap.set(footerContent, { opacity: 0, y: 40 });
+            ScrollTrigger.create({
+                trigger: footer,
+                start: "top 85%", // Start animation earlier
+                once: true,
+                onEnter: () => {
+                    gsap.to(footerContent, {
                         opacity: 1,
-                        duration: 1.2,
-                        stagger: 0.05,
-                        ease: "elastic.out(1, 0.5)"
-                    });
-
-                    // Add a hover effect to the logo
-                    const logoWrapper = footer.querySelector('.footer-logo-wrapper');
-                    if (logoWrapper) {
-                        logoWrapper.addEventListener('mouseenter', () => {
-                            gsap.to(logoChars, {
-                                y: -10,
-                                color: '#c6fb50',
-                                stagger: 0.02,
-                                duration: 0.5,
-                                ease: "power2.out"
-                            });
-                        });
-
-                        logoWrapper.addEventListener('mouseleave', () => {
-                            gsap.to(logoChars, {
-                                y: 0,
-                                color: '',
-                                stagger: 0.02,
-                                duration: 0.5,
-                                ease: "power2.out"
-                            });
-                        });
-                    }
-                } else if (footerLogo) {
-                    // Fallback if we couldn't split the text
-                    gsap.fromTo(footerLogo,
-                        { scale: 0.9, y: 20, rotation: 5 },
-                        {
-                            scale: 1,
-                            y: 0,
-                            rotation: 0,
-                            duration: 1.2,
-                            ease: "elastic.out(1, 0.5)"
-                        }
-                    );
-
-                    // Add hover animation
-                    footerLogo.addEventListener('mouseenter', () => {
-                        gsap.to(footerLogo, {
-                            y: -10,
-                            color: '#c6fb50',
-                            scale: 1.05,
-                            duration: 0.5,
-                            ease: "power2.out"
-                        });
-                    });
-
-                    footerLogo.addEventListener('mouseleave', () => {
-                        gsap.to(footerLogo, {
-                            y: 0,
-                            color: '',
-                            scale: 1,
-                            duration: 0.5,
-                            ease: "power2.out"
-                        });
+                        y: 0,
+                        duration: 0.8,
+                        stagger: 0.1,
+                        ease: "power3.out"
                     });
                 }
+            });
+        }
 
-                // Columns animation
-                gsap.to(footerColumns, {
-                    opacity: 1,
-                    y: 0,
-                    stagger: 0.1,
-                    duration: 0.8,
-                    ease: "power2.out",
-                    delay: 0.2
-                });
+        // Animate bottom wrapper
+        if (footerBottom) {
+            gsap.set(footerBottom, { opacity: 0 });
+            ScrollTrigger.create({
+                trigger: footerBottom, // Trigger based on the element itself
+                start: "top 95%",
+                once: true,
+                onEnter: () => {
+                    gsap.to(footerBottom, {
+                        opacity: 1,
+                        duration: 1.0,
+                        ease: "power3.out",
+                        delay: 0.5 // Delay after main content
+                    });
+                }
+            });
+        }
+    };
 
-                // Links animation
-                gsap.to(footerLinks, {
-                    opacity: 1,
-                    y: 0,
-                    stagger: 0.03,
-                    duration: 0.6,
-                    ease: "power2.out",
-                    delay: 0.4
-                });
+    // Navbar Animation (Initial Fade-in & Scroll Behavior)
+    const animateNavbar = () => {
+        if (!navbar) return;
 
-                // Form animation
-                gsap.to(footerForm, {
-                    opacity: 1,
-                    y: 0,
-                    duration: 0.8,
-                    ease: "power2.out",
-                    delay: 0.6
-                });
+        // Initial fade-in and slide-down
+        gsap.set(navbar, { y: -30, opacity: 0 });
+        gsap.to(navbar, { y: 0, opacity: 1, duration: 1.0, ease: "power3.out", delay: 0.2 });
 
-                // Bottom section animation
-                gsap.to(footerBottom, {
-                    opacity: 1,
-                    y: 0,
-                    duration: 0.8,
-                    ease: "power2.out",
-                    delay: 0.8
-                });
-            },
-            once: true
+        // Scroll behavior (subtle background/shadow)
+        ScrollTrigger.create({
+            trigger: document.body, // Use body as trigger
+            start: "top top-=100", // Start changing after scrolling 100px
+            end: "max",
+            toggleClass: { targets: navbar, className: "scrolled" }, // Add a 'scrolled' class
+            // markers: true // For debugging
+        });
+
+        // Add CSS for the scrolled state
+        const navStyle = document.createElement('style');
+        navStyle.textContent = `
+             .navbar_component.scrolled {
+                 background-color: rgba(255, 255, 255, 0.9); /* Slightly transparent white */
+                 box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+                 backdrop-filter: blur(8px);
+                 transition: background-color 0.4s ease, box-shadow 0.4s ease, backdrop-filter 0.4s ease;
+             }
+             .u-theme-dark .navbar_component.scrolled {
+                 background-color: rgba(20, 20, 20, 0.85); /* Slightly transparent dark */
+                 box-shadow: 0 2px 15px rgba(0, 0, 0, 0.2);
+             }
+         `;
+        document.head.appendChild(navStyle);
+    };
+
+    // General Section Fade-in Animation
+    const animateGeneralSections = () => {
+        // Target sections that don't have specific animations already
+        const sectionsToAnimate = gsap.utils.toArray('section:not(.header_wrap):not(.subheader_wrap):not(.portfolio_wrap):not(.layout_wrap):not(.faq_wrap)');
+
+        sectionsToAnimate.forEach(section => {
+            // Animate the section container itself for a simple fade/slide up
+            gsap.set(section, { opacity: 0, y: 50 });
+
+            ScrollTrigger.create({
+                trigger: section,
+                start: "top 85%",
+                once: true,
+                onEnter: () => {
+                    gsap.to(section, {
+                        opacity: 1,
+                        y: 0,
+                        duration: 0.8,
+                        ease: "power3.out"
+                    });
+                }
+            });
         });
     };
 
-    // Add navbar logo animation - CORRECTED VERSION
-    const animateNavbarLogo = () => {
-        // Find the navbar logo/title that contains "totoropixel"
-        const navbarLogo = document.querySelector('.navbar_component .navbar_logo-link');
 
-        if (navbarLogo) {
-            const logoText = navbarLogo.textContent;
-            if (logoText.toLowerCase().includes('totoropixel') || logoText.toLowerCase().includes('totoro')) {
-                // Primero guardamos el elemento h original para preservar sus propiedades
-                const originalH = navbarLogo.querySelector('h1, h2, h3, h4, h5, h6');
-                let originalFontSize = '24px'; // Valor por defecto por si no conseguimos el elemento h
-                let originalClassName = '';
+    // --- Initialization ---
+    const initAnimations = () => {
+        setupInitialState();
+        const { cursorDot, cursorOutline } = createCustomCursor(); // Create cursor and get elements
+        setupThemeSwitching(cursorDot, cursorOutline); // Pass cursor elements to theme switcher
 
-                if (originalH) {
-                    // Capturar la información original del elemento h
-                    const computedStyle = window.getComputedStyle(originalH);
-                    originalFontSize = computedStyle.fontSize;
-                    originalClassName = originalH.className;
-                    console.log("Original font size:", originalFontSize);
-                }
+        // Initialize section animations
+        animateNavbar();
+        animateHeader();
+        animateSubheader();
+        animatePortfolio();
+        animateServices();
+        animateFAQ();
+        animateFooter();
+        // animateGeneralSections(); // Add this if needed for other sections
 
-                // Clear and prepare for animation
-                const originalHTML = navbarLogo.innerHTML;
-                navbarLogo.innerHTML = '';
-
-                // Create a wrapper for the animated text that mantendrá las propiedades del h original
-                const textWrapper = document.createElement('div');
-                textWrapper.className = 'navbar-logo-wrapper';
-                if (originalClassName) {
-                    textWrapper.className += ' ' + originalClassName;
-                }
-                textWrapper.style.display = 'inline-block';
-                textWrapper.style.fontSize = originalFontSize; // Aplicar el tamaño de fuente original
-                navbarLogo.appendChild(textWrapper);
-
-                // Split text into characters
-                [...logoText].forEach((char, index) => {
-                    const charSpan = document.createElement('span');
-                    charSpan.className = 'navbar-logo-char';
-                    charSpan.textContent = char === ' ' ? '\u00A0' : char; // Use non-breaking space for spaces
-                    charSpan.style.display = 'inline-block';
-                    charSpan.style.fontSize = originalFontSize; // Mantener tamaño de fuente original
-                    charSpan.style.opacity = '0'; // Start invisible para la animación de entrada
-                    charSpan.style.transform = 'translateY(30px) rotate(10deg)'; // Para animación inicial como en footer
-                    textWrapper.appendChild(charSpan);
-                });
-
-                // Animación inicial (similar al footer)
-                const chars = textWrapper.querySelectorAll('.navbar-logo-char');
-                gsap.to(chars, {
-                    y: 0,
-                    rotation: 0,
-                    opacity: 1,
-                    duration: 1.2,
-                    stagger: 0.05,
-                    ease: "elastic.out(1, 0.5)",
-                    delay: 0.2
-                });
-
-                // Después de la animación inicial, añadir movimiento sutil y continuo
-                chars.forEach((char, index) => {
-                    gsap.to(char, {
-                        y: -3 + Math.random() * 6, // Random slight up/down movement
-                        repeat: -1,
-                        yoyo: true,
-                        duration: 1 + Math.random() * 2,
-                        ease: "sine.inOut",
-                        delay: 1 + (index * 0.05) // Delay después de la animación inicial
-                    });
-                });
-
-                // Add hover effect to the entire logo
-                textWrapper.addEventListener('mouseenter', () => {
-                    gsap.to(chars, {
-                        color: '#c6fb50',
-                        y: -10, // Más pronunciado al hacer hover
-                        stagger: 0.03,
-                        duration: 0.3,
-                        ease: "power2.out"
-                    });
-                });
-
-                textWrapper.addEventListener('mouseleave', () => {
-                    gsap.to(chars, {
-                        color: '',
-                        y: 0,
-                        stagger: 0.02,
-                        duration: 0.3,
-                        ease: "power2.out",
-                        onComplete: () => {
-                            // Restaurar el movimiento sutil tras finalizar el hover
-                            chars.forEach((char, index) => {
-                                gsap.to(char, {
-                                    y: -3 + Math.random() * 6,
-                                    repeat: -1,
-                                    yoyo: true,
-                                    duration: 1 + Math.random() * 2,
-                                    ease: "sine.inOut"
-                                });
-                            });
-                        }
-                    });
-                });
-            }
-        }
+        // Refresh ScrollTrigger after everything is set up
+        ScrollTrigger.refresh();
     };
 
-    // Navbar animation on scroll - FIXED
-    const animateNavbar = () => {
-        try {
-            const navbar = document.querySelector('.navbar_component');
-            if (!navbar) {
-                console.log("Navbar not found"); // Debug
-                return;
-            }
+    // --- Lenis Integration (Optional but Recommended) ---
+    if (typeof Lenis !== 'undefined') {
+        const lenis = new Lenis();
+        lenis.on('scroll', ScrollTrigger.update);
+        gsap.ticker.add((time) => {
+            lenis.raf(time * 1000);
+        });
+        gsap.ticker.lagSmoothing(0);
+        console.log("Lenis smooth scroll integrated.");
+    } else {
+        console.log("Lenis not found. Using native scroll.");
+    }
 
-            // First ensure navbar is visible with light appearance
-            gsap.set(navbar, {
-                visibility: "visible",
-                opacity: 1,
-                display: "block",
-                backgroundColor: "white",
-                color: "#353233"
-            });
+    // Run Initialization
+    initAnimations();
 
-            // Force navbar styling to light mode initially
-            navbar.setAttribute('data-wf--navbar--variant', 'light');
-
-            // Create scroll-driven animation for navbar
-            ScrollTrigger.create({
-                start: 1,
-                end: "max",
-                onUpdate: (self) => {
-                    const scrollY = window.scrollY;
-
-                    // Add subtle background when scrolled
-                    if (scrollY > 50) {
-                        gsap.to(navbar, {
-                            backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
-                            backdropFilter: 'blur(10px)',
-                            duration: 0.3
-                        });
-                    } else {
-                        gsap.to(navbar, {
-                            backgroundColor: 'white',
-                            boxShadow: 'none',
-                            backdropFilter: 'blur(0px)',
-                            duration: 0.3
-                        });
-                    }
-                }
-            });
-
-            // Initial animation
-            gsap.from(navbar, {
-                y: -50,
-                opacity: 0,
-                duration: 1,
-                ease: "power3.out"
-            });
-        } catch (error) {
-            console.error("Error in animateNavbar:", error);
-        }
-    };
-
-    // Utility to ensure elements are visible
-    const ensureVisibility = () => {
-        try {
-            // Make sure critical elements are visible
-            const criticalElements = [
-                '.navbar_component',
-                '.header_content',
-                '.header_lightbox-image',
-                '.header104_heading-wrapper',
-                '.header104_heading-wrapper h1',
-                '.header104_heading-wrapper h1 span'
-            ];
-
-            criticalElements.forEach(selector => {
-                const elements = document.querySelectorAll(selector);
-                if (elements.length === 0) {
-                    console.log(`Warning: No elements found for selector: ${selector}`);
-                } else {
-                    elements.forEach(el => {
-                        el.style.visibility = 'visible';
-                        el.style.opacity = '1';
-                        el.style.display = el.tagName === 'SPAN' ? 'inline-block' : 'block';
-                    });
-                }
-            });
-
-            // Force light mode on page initially
-            const pageWrap = document.querySelector('.page_wrap');
-            if (pageWrap) {
-                pageWrap.classList.add('u-theme-light');
-                pageWrap.classList.remove('u-theme-dark');
-            }
-        } catch (error) {
-            console.error("Error in ensureVisibility:", error);
-        }
-    };
-
-    // Initialize all animations
-    const initAllAnimations = () => {
-        try {
-            console.log("Initializing animations");
-
-            // First ensure critical elements are visible
-            ensureVisibility();
-
-            // Explicitly call updateTheme with light mode
-            updateTheme('light');
-
-            // Run immediate animations
-            animateNavbar();
-            animateHeader();
-            animateNavbarLogo(); // Add animation to navbar logo
-
-            // Set up scroll animations
-            animateSubheader();
-            animatePortfolioImages();
-            animateServices();
-            animateFAQ();
-            animateFooter();
-            animateGeneralSections();
-
-            // Re-enable theme switching
-            setupThemeSwitching();
-        } catch (error) {
-            console.error("Error initializing animations:", error);
-        }
-    };
-
-    // Start all animations immediately to ensure visibility
-    initAllAnimations();
-});
+}); // End DOMContentLoaded
