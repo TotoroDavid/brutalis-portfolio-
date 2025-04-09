@@ -1,3 +1,28 @@
+// Cache Busting & Debug Helpers
+(function () {
+    // Attempt to clear browser caches
+    if ('caches' in window) {
+        console.log("🔄 Attempting to clear caches...");
+        caches.keys().then(function (names) {
+            for (let name of names) caches.delete(name);
+        }).then(() => {
+            console.log("✅ Caches cleared successfully");
+        }).catch(err => {
+            console.warn("⚠️ Cache clearing error:", err);
+        });
+    }
+
+    // Add timestamp to verify script loaded time
+    const now = new Date();
+    const timestamp = now.toISOString();
+    const simpleTimestamp = now.toLocaleTimeString();
+
+    // Log with unique identifiable pattern you can search for
+    console.log(`%c🚀 ANIMATION.JS LOADED [${simpleTimestamp}] 🚀`,
+        "background:#333; color:#bada55; padding:5px; border-radius:3px; font-size:12px;");
+    console.log(`Script version timestamp: ${timestamp}`);
+})();
+
 document.addEventListener("DOMContentLoaded", () => {
     console.log("Animation script loaded ???????? really"); // Debug log
 
