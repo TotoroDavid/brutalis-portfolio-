@@ -24,7 +24,7 @@
 })();
 
 document.addEventListener("DOMContentLoaded", () => {
-    console.log("Animation script loaded ???????? really"); // Debug log
+    console.log("this is a new console log to check everything is working"); // Debug log
 
     // IMPORTANT: Force elements to be visible immediately
     document.querySelectorAll('.navbar_component, .header_content, .header_lightbox-image, .header104_heading-wrapper, h1, .header104_heading-wrapper h1 span').forEach(el => {
