@@ -1,4 +1,6 @@
-// Wait for DOM to load
+console.log("Animations initialized");// Wait for DOM to load
+
+
 document.addEventListener("DOMContentLoaded", () => {
     console.log("Animation script loaded"); // Debug log
 
@@ -1709,4 +1711,3 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
-console.log("Animations initialized");
